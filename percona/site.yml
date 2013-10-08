@@ -1,0 +1,31 @@
+---
+- hosts: db
+  sudo: yes
+  vars:
+    mysqlservice: mysqld
+    mysql_port: 3306
+    dbuser: root
+    dbname: foodb
+    upassword: abc
+  tasks:
+#  - name: add repo
+#    raw: rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm 
+
+  - name: Install Mysql package
+    action: yum pkg={{ item }} state=installed
+    with_items:
+     - Percona-Server-client-55 
+     - Percona-Server-server-55
+     - MySQL-python
+     - libselinux-python
+     - libsemanage-python
+
+  - name: Start Mysql Service
+    service: name=mysql state=started enabled=true
+
+  - name: Create Application Database
+    mysql_db: name={{ dbname }} state=present
+
+  - name: Create Application DB User
+    mysql_user: name={{ dbuser }} password={{ upassword }} priv=*.*:ALL host='%' state=present
+
